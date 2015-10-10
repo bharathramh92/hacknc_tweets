@@ -1,0 +1,5 @@
+applications:
+- name: hacknctweetsbl
+  memory: 256M
+  command: sh run.sh
+  buildpack: https://github.com/cloudfoundry/python-buildpack
