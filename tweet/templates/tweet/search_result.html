@@ -1,4 +1,4 @@
-<p>Rating is {{rating}}</p><p>Total count is {{ hashtags|length }}</p>
+{% extends "tweet/base.html" %}
 <!--<br><br>-->
 <!--{% for hashtag, count in hashtags.items %}-->
 <!--<p>{{ hashtag }} and repeated for {{count}} time.</p>-->
@@ -11,3 +11,13 @@
 <!--{% for tweets in tweets_raw_list %}-->
 <!--<p>{{ tweets }}</p>-->
 <!--{% endfor %}-->
+
+{% block title %}Search{% endblock %}
+
+{% block body %}
+
+<p>Based on analysing {{total}} tweets, Rating is {{rating}}</p>
+
+{% endblock %}
+
+{{form}}

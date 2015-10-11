@@ -77,7 +77,8 @@ def get_sentiment_analysis(tags):
         positive_score = data_json['search']['results']
         data_json = r_negative.json()
         negative_score = data_json['search']['results']
-        return "%.2f" %(positive_score/(positive_score + negative_score))
+        rating = "%.2f" %(positive_score/(positive_score + negative_score))
+        return rating, (positive_score + negative_score)
     print(r_positive.status_code, r_negative.status_code)
     return None
 
@@ -94,9 +95,9 @@ def index(request):
             search = form.cleaned_data['search']
             hashtags, tweets_raw_list = open_url(search)
             rel_tags = get_relevant_hastags(hashtags)
-            rating = get_sentiment_analysis(rel_tags)
-            return render(request, 'tweet/search_result.html',{
-                          'rating' : rating,
+            rating, total = get_sentiment_analysis(rel_tags)
+            return render(request, 'tweet/search_result.html', {
+                          'rating' : rating, 'total': total,
                           # 'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list, 'rel_tags': rel_tags
             })
     # if a GET (or any other method) we'll create a blank form
