@@ -50,7 +50,7 @@ def open_url(search):
 
 def get_relevant_hastags(hashtags):
     rel_tags, max_iter={}, 100
-    for i in range(0, 5):
+    for i in range(0, 2):
         if len(hashtags) > 0:
             mx = max(hashtags, key= hashtags.get)
             rel_tags[mx] = hashtags[mx]
@@ -92,14 +92,16 @@ def index(request):
             # process the data in form.cleaned_data as required
             # ...
             # redirect to a new URL:
+            out_dict = {}
             search = form.cleaned_data['search']
-            hashtags, tweets_raw_list = open_url(search)
-            rel_tags = get_relevant_hastags(hashtags)
-            rating, total = get_sentiment_analysis(rel_tags)
-            return render(request, 'tweet/search_result.html', {
-                          'rating' : rating, 'total': total,
-                          # 'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list, 'rel_tags': rel_tags
-            })
+            try:
+                hashtags, tweets_raw_list = open_url(search)
+                rel_tags = get_relevant_hastags(hashtags)
+                rating, total = get_sentiment_analysis(rel_tags)
+                out_dict = {'rating' : rating, 'total': total, 'rel_tags': ', '.join(rel_tags.keys())}
+            except Exception:
+                pass
+            return render(request, 'tweet/search_result.html', out_dict)
     # if a GET (or any other method) we'll create a blank form
     else:
         form = SearchForm()

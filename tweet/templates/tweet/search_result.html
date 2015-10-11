@@ -4,9 +4,7 @@
 <!--<p>{{ hashtag }} and repeated for {{count}} time.</p>-->
 <!--{% endfor %}-->
 <!--<p>rel tags</p>-->
-<!--{% for tag in rel_tags %}-->
-<!--<p>{{ tag }}</p>-->
-<!--{% endfor %}-->
+
 <!--<p>tweets</p>-->
 <!--{% for tweets in tweets_raw_list %}-->
 <!--<p>{{ tweets }}</p>-->
@@ -15,9 +13,13 @@
 {% block title %}Search{% endblock %}
 
 {% block body %}
-
-<p>Based on analysing {{total}} tweets, Rating is {{rating}}</p>
-
+{% if total %}
+    <p>Based on analysing {{total}} tweets, Rating is {{rating}}</p>
+<p>Searched for {{rel_tags}} tags in twitter for analysing.</p>
+{% else %}
+    <p>Search term yielded zero results. Try for something else.</p>
+{% endif %}
+<p><a href="{% url 'tweet:index' %}">Search again</a></p>
 {% endblock %}
 
 {{form}}
