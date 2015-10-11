@@ -1,0 +1,4 @@
+<p>Total count is {{ hashtags|length }}</p>
+{% for hashtag, count in hashtags.items %}
+<p>{{ hashtag }} and repeated for {{count}} time.</p>
+{% endfor %}
