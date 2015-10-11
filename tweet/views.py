@@ -51,13 +51,35 @@ def open_url(search):
 def get_relevant_hastags(hashtags):
     rel_tags, max_iter={}, 100
     for i in range(0, 5):
-        if len(hashtags) > 3:
+        if len(hashtags) > 0:
             mx = max(hashtags, key= hashtags.get)
             rel_tags[mx] = hashtags[mx]
             hashtags.pop(mx)
     return rel_tags
 
-
+def get_sentiment_analysis(tags):
+    today = datetime.datetime.today()
+    two_days_before = today - datetime.timedelta(days=2)
+    print("today ", today, " two days before ", two_days_before)
+    str_tif = "%d-%02d-%02dT%02d:%02d:%02dZ" %(two_days_before.year, two_days_before.month, two_days_before.day, \
+                     two_days_before.hour, two_days_before.minute, two_days_before.second)
+    tag_str = ' OR '.join([x for x in tags.keys()])
+    top_level_url_positive = twitter_count_base_url + "?q=(" + urllib.parse.quote(tag_str, safe='')\
+                    + ")%20AND%20posted:" + urllib.parse.quote(str_tif, safe='') \
+                    + "%20AND%20sentiment:positive"
+    top_level_url_negative = twitter_count_base_url + "?q=(" + urllib.parse.quote(tag_str, safe='')\
+                    + ")%20AND%20sentiment:negative" +"%20AND%20posted:" + urllib.parse.quote(str_tif, safe='')
+    r_positive = requests.get(top_level_url_positive, auth= (twitter_username, twitter_password))
+    r_negative = requests.get(top_level_url_negative, auth= (twitter_username, twitter_password))
+    print(top_level_url_positive, top_level_url_negative)
+    if r_positive.status_code == 200 and r_negative.status_code == 200:
+        data_json = r_positive.json()
+        positive_score = data_json['search']['results']
+        data_json = r_negative.json()
+        negative_score = data_json['search']['results']
+        return "%.2f" %(positive_score/(positive_score + negative_score))
+    print(r_positive.status_code, r_negative.status_code)
+    return None
 
 def index(request):
     # if this is a POST request we need to process the form data
@@ -72,9 +94,11 @@ def index(request):
             search = form.cleaned_data['search']
             hashtags, tweets_raw_list = open_url(search)
             rel_tags = get_relevant_hastags(hashtags)
-            return render(request, 'tweet/search_result.html',
-                          {'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list, 'rel_tags': rel_tags})
-
+            rating = get_sentiment_analysis(rel_tags)
+            return render(request, 'tweet/search_result.html',{
+                          'rating' : rating,
+                          # 'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list, 'rel_tags': rel_tags
+            })
     # if a GET (or any other method) we'll create a blank form
     else:
         form = SearchForm()
