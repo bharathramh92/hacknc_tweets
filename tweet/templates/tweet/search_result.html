@@ -2,6 +2,10 @@
 {% for hashtag, count in hashtags.items %}
 <p>{{ hashtag }} and repeated for {{count}} time.</p>
 {% endfor %}
+<p>rel tags</p>
+{% for tag in rel_tags %}
+<p>{{ tag }}</p>
+{% endfor %}
 <p>tweets</p>
 {% for tweets in tweets_raw_list %}
 <p>{{ tweets }}</p>

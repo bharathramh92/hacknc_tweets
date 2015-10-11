@@ -7,6 +7,7 @@ import json
 from collections import defaultdict
 import requests
 import datetime
+import queue
 
 # Create your views here.
 
@@ -29,6 +30,7 @@ def open_url(search):
     print("url ", top_level_url)
     r = requests.get(top_level_url, auth= (twitter_username, twitter_password))
     tweet_list, tweets_raw_list = [], []
+    pq = queue.PriorityQueue()
     hashtags = defaultdict(int)
     if r.status_code == 200:
         data_json = r.json()
@@ -41,9 +43,19 @@ def open_url(search):
                     hashtags[word.lower()] += 1
                     t.tweets[word.lower()] += 1
             tweet_list.append(tweet_list)
-    return dict(hashtags), tweets_raw_list
+        hashtags = dict(hashtags)
+
+    return hashtags, tweets_raw_list
 
 
+def get_relevant_hastags(hashtags):
+    rel_tags, max_iter={}, 100
+    for i in range(0, 5):
+        if len(hashtags) > 3:
+            mx = max(hashtags, key= hashtags.get)
+            rel_tags[mx] = hashtags[mx]
+            hashtags.pop(mx)
+    return rel_tags
 
 
 
@@ -59,7 +71,9 @@ def index(request):
             # redirect to a new URL:
             search = form.cleaned_data['search']
             hashtags, tweets_raw_list = open_url(search)
-            return render(request, 'tweet/search_result.html', {'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list})
+            rel_tags = get_relevant_hastags(hashtags)
+            return render(request, 'tweet/search_result.html',
+                          {'hashtags': hashtags, 'tweets_raw_list': tweets_raw_list, 'rel_tags': rel_tags})
 
     # if a GET (or any other method) we'll create a blank form
     else:
